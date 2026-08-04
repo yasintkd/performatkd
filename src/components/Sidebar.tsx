@@ -31,7 +31,7 @@ export function Sidebar() {
   return (
     <>
       {/* Kenar çubuğu — masaüstünde statik, mobilde gizli */}
-      <aside className="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transform bg-white shadow-lg transition-transform sm:static sm:translate-x-0">
+      <aside className="hidden shrink-0 bg-white shadow-lg sm:block">
         <div className="flex h-full flex-col p-4">
           <div className="flex items-center gap-2 px-2 py-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-primary)] font-black text-white">
