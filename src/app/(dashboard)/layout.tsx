@@ -23,7 +23,7 @@ export default function DashboardLayout({
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl">
       <Sidebar />
-      <main className="flex-1 p-4 pb-24 pt-16 sm:pb-4 sm:pt-4">
+      <main className="flex-1 p-4 pb-24 pt-16 lg:pb-4 lg:pt-4">
         {children}
       </main>
     </div>

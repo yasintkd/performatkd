@@ -31,7 +31,7 @@ export function Sidebar() {
   return (
     <>
       {/* Kenar çubuğu — masaüstünde statik, mobilde gizli */}
-      <aside className="hidden shrink-0 bg-white shadow-lg sm:block">
+      <aside className="hidden shrink-0 bg-white shadow-lg lg:block">
         <div className="flex h-full flex-col p-4">
           <div className="flex items-center gap-2 px-2 py-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-primary)] font-black text-white">
@@ -72,7 +72,7 @@ export function Sidebar() {
       </aside>
 
       {/* Mobil üst bar */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 sm:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-sm font-black text-white">
             TK
@@ -90,7 +90,7 @@ export function Sidebar() {
 
       {/* Mobil alt navigasyon */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
         aria-label="Ana navigasyon"
       >
         <div className="grid grid-cols-4">
