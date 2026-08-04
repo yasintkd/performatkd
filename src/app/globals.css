@@ -15,13 +15,31 @@
   -webkit-touch-callout: none;
 }
 
-html,
+html {
+  overscroll-behavior-y: none;
+}
+
 body {
   background: var(--color-light);
   color: var(--color-dark);
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
 }
 
-a {
+a,
+button,
+[role='button'] {
   -webkit-user-select: none;
   user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* input/textarea dokunmatik metin seçimi normal kalır */
+
+@media (hover: hover) {
+  a[href]:hover {
+    opacity: 0.85;
+  }
 }

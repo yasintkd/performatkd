@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, ClipboardList, Gauge, LogOut, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { LayoutDashboard, Users, ClipboardList, Gauge, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
@@ -19,7 +18,6 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { role } = useAuth()
-  const [open, setOpen] = useState(false)
 
   const items = role === 'coach' ? nav : nav.filter((n) => n.href !== '/test-types')
 
@@ -28,22 +26,12 @@ export function Sidebar() {
     router.push('/login')
   }
 
+  const isActive = (href: string) => pathname.startsWith(href)
+
   return (
     <>
-      <button
-        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-lg bg-white shadow sm:hidden"
-        onClick={() => setOpen(!open)}
-        aria-label="Menü"
-      >
-        {open ? <X size={20} /> : <Menu size={20} />}
-      </button>
-
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg transition-transform sm:static sm:translate-x-0',
-          open ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
+      {/* Kenar çubuğu — masaüstünde statik, mobilde gizli */}
+      <aside className="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transform bg-white shadow-lg transition-transform sm:static sm:translate-x-0">
         <div className="flex h-full flex-col p-4">
           <div className="flex items-center gap-2 px-2 py-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-primary)] font-black text-white">
@@ -60,10 +48,9 @@ export function Sidebar() {
               <Link
                 key={href}
                 href={href}
-                onClick={() => setOpen(false)}
                 className={cn(
                   'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium',
-                  pathname.startsWith(href)
+                  isActive(href)
                     ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
                     : 'text-gray-600 hover:bg-gray-100'
                 )}
@@ -83,6 +70,49 @@ export function Sidebar() {
           </button>
         </div>
       </aside>
+
+      {/* Mobil üst bar */}
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 sm:hidden">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-sm font-black text-white">
+            TK
+          </div>
+          <span className="font-bold text-[var(--color-dark)]">PerformaTKD</span>
+        </div>
+        <button
+          onClick={logout}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600"
+          aria-label="Çıkış Yap"
+        >
+          <LogOut size={20} />
+        </button>
+      </header>
+
+      {/* Mobil alt navigasyon */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden"
+        aria-label="Ana navigasyon"
+      >
+        <div className="grid grid-cols-4">
+          {items.map(({ href, label, icon: Icon }) => {
+            const active = isActive(href)
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'flex min-h-[56px] flex-col items-center justify-center gap-1 text-[11px] font-medium',
+                  active ? 'text-[var(--color-primary)]' : 'text-gray-500'
+                )}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Icon size={20} />
+                {label}
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
     </>
   )
 }
