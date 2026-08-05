@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'PerformaTKD | Performans Takip Sistemi',
     short_name: 'PerformaTKD',
     description: 'Veriyi Vuruşa Dönüştür',
-    start_url: '/?v=2',
+    start_url: '/?v=3',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#111827',

@@ -3,7 +3,11 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { Sidebar } from '@/components/Sidebar'
+import {
+  DesktopSidebar,
+  MobileBottomNav,
+  MobileLogoutButton,
+} from '@/components/Sidebar'
 import { Spinner } from '@/components/ui'
 
 export default function DashboardLayout({
@@ -21,11 +25,15 @@ export default function DashboardLayout({
   if (loading || !session) return <Spinner />
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl">
-      <Sidebar />
-      <main className="flex-1 p-4 pb-24 pt-16 lg:pb-4 lg:pt-4">
-        {children}
-      </main>
+    <div className="min-h-screen">
+      <div className="lg:mx-auto lg:flex lg:min-h-screen lg:max-w-7xl">
+        <DesktopSidebar />
+        <main className="w-full flex-1 p-4 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-4">
+          {children}
+        </main>
+      </div>
+      <MobileBottomNav />
+      <MobileLogoutButton />
     </div>
   )
 }
