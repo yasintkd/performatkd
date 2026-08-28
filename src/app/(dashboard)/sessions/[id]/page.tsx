@@ -48,7 +48,7 @@ export default function SessionDataPage() {
           .order('first_name'),
         supabase
           .from('test_results')
-          .select('id, student_id, test_type_id, value, notes')
+          .select('student_id, test_type_id, value, notes')
           .eq('session_id', id),
       ])
       group = g.data
@@ -139,12 +139,7 @@ export default function SessionDataPage() {
             : n
               ? n
               : undefined
-        const existingResult = data?.results?.find(
-          (r: any) => r.student_id === studentId && r.test_type_id === testTypeId
-        )
-
         return {
-          ...(existingResult && { id: existingResult.id }),
           session_id: id,
           student_id: studentId,
           test_type_id: testTypeId,
@@ -155,7 +150,7 @@ export default function SessionDataPage() {
       })
     if (results.length === 0) return
     const { error } = await supabase.from('test_results').upsert(results, {
-      onConflict: 'session_id, student_id, test_type_id',
+      onConflict: 'session_id,student_id,test_type_id',
     })
     if (error) alert(error.message)
     else {
