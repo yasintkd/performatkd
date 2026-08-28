@@ -37,6 +37,7 @@ export default function SessionDataPage() {
     let group = null
     let students: any[] = []
     let results: any[] = []
+    let prev: Record<string, any> = {}
     if (s?.group_id) {
       const [g, st, r] = await Promise.all([
         yc.from('training_groups').select('id, name').eq('id', s.group_id).single(),
@@ -55,7 +56,6 @@ export default function SessionDataPage() {
       students = st.data ?? []
       results = (r.data ?? []).filter((x) => !s.test_type_id || x.test_type_id === s.test_type_id)
 
-      let prev: Record<string, any> = {}
       if (students.length > 0) {
         const { data: r2 } = await supabase
           .from('test_results')
