@@ -140,4 +140,3 @@ export function MobileBottomNav() {
     </nav>
   )
 }
-</arg_value></tool_call>
