@@ -48,7 +48,7 @@ export default function SessionDataPage() {
           .order('first_name'),
         supabase
           .from('test_results')
-          .select('student_id, test_type_id, value, notes')
+          .select('id, student_id, test_type_id, value, notes')
           .eq('session_id', id),
       ])
       group = g.data
