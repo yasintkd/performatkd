@@ -50,21 +50,26 @@ export default function SessionDataPage() {
           .from('test_results')
           .select('student_id, test_type_id, value, notes, session:test_sessions(session_date)')
           .eq('session_id', id),
-        supabase
-          .from('test_results')
-          .select('student_id, test_type_id, value, session:test_sessions(session_date)')
-          .in('student_id', st.data?.map(s => s.id) ?? [])
-          .lt('session:test_sessions.session_date', s.session_date)
-          .order('session:test_sessions.session_date', { ascending: false }),
       ])
       group = g.data
       students = st.data ?? []
       results = (r.data ?? []).filter((x) => !s.test_type_id || x.test_type_id === s.test_type_id)
-      const prev = (r2.data ?? []).reduce((acc: any, cur: any) => {
-        const key = `${cur.student_id}:${cur.test_type_id}`
-        if (!acc[key]) acc[key] = cur.value
-        return acc
-      }, {})
+
+      let prev: Record<string, any> = {}
+      if (students.length > 0) {
+        const { data: r2 } = await supabase
+          .from('test_results')
+          .select('student_id, test_type_id, value, session:test_sessions(session_date)')
+          .in('student_id', students.map(stItem => stItem.id))
+          .lt('session:test_sessions.session_date', s.session_date)
+          .order('session:test_sessions.session_date', { ascending: false })
+
+        prev = (r2 ?? []).reduce((acc: any, cur: any) => {
+          const key = `${cur.student_id}:${cur.test_type_id}`
+          if (!acc[key]) acc[key] = cur.value
+          return acc
+        }, {})
+      }
     }
     return { session: { ...s, group }, students, results, previousResults: prev }
   })
