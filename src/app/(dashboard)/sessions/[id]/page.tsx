@@ -149,7 +149,9 @@ export default function SessionDataPage() {
         }
       })
     if (results.length === 0) return
-    const { error } = await supabase.from('test_results').upsert(results)
+    const { error } = await supabase.from('test_results').upsert(results, {
+      onConflict: 'session_id, student_id, test_type_id',
+    })
     if (error) alert(error.message)
     else alert('Kaydedildi!')
   }
