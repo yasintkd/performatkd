@@ -139,7 +139,12 @@ export default function SessionDataPage() {
             : n
               ? n
               : undefined
+        const existingResult = data?.results?.find(
+          (r: any) => r.student_id === studentId && r.test_type_id === testTypeId
+        )
+
         return {
+          ...(existingResult && { id: existingResult.id }),
           session_id: id,
           student_id: studentId,
           test_type_id: testTypeId,
