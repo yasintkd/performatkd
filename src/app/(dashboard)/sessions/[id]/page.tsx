@@ -322,6 +322,7 @@ export default function SessionDataPage() {
                             student={s}
                             level={beep[key]?.level ?? ''}
                             shuttle={beep[key]?.shuttle ?? ''}
+                            previousValue={data.previousResults[key]}
                             onLevel={(v) => updateBeep(key, { level: v })}
                             onShuttle={(v) => updateBeep(key, { shuttle: v })}
                           />

@@ -10,6 +10,7 @@ export function BeepTestInput({
   shuttle,
   onLevel,
   onShuttle,
+  previousValue,
 }: {
   id: string
   student: { first_name: string; belt?: string; birth_date?: string | null; gender?: string }
@@ -17,6 +18,7 @@ export function BeepTestInput({
   shuttle: string
   onLevel: (v: string) => void
   onShuttle: (v: string) => void
+  previousValue?: string
 }) {
   const l = Number(level)
   const s = Number(shuttle)
@@ -27,6 +29,10 @@ export function BeepTestInput({
 
   return (
     <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-600">Level / Shuttle</span>
+        {previousValue && <span className="text-xs text-gray-400">Önceki: {previousValue}</span>}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
           <span className="text-sm text-gray-600">Level</span>
