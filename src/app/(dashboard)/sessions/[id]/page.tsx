@@ -57,20 +57,33 @@ export default function SessionDataPage() {
       results = (r.data ?? []).filter((x) => !s.test_type_id || x.test_type_id === s.test_type_id)
 
       if (students.length > 0) {
+        // Basitleştirilmiş sorgu
         const { data: r2 } = await supabase
           .from('test_results')
           .select('student_id, test_type_id, value, session:test_sessions(session_date)')
-          .in('student_id', students.map(stItem => stItem.id))
-          .lt('session:test_sessions.session_date', s.session_date)
-          .order('session:test_sessions.session_date', { ascending: false })
+          .in('student_id', students.map(stItem => stItem.id));
+        
+        console.log('Tüm test sonuçları (filtresiz):', r2);
 
-        prev = (r2 ?? []).reduce((acc: any, cur: any) => {
+        // JS tarafında tarih ve test_type_id karşılaştırması
+        const currentSessionDate = new Date(s.session_date).getTime();
+        const filteredResults = (r2 ?? []).filter(r => {
+          const resDate = new Date((r.session as any)?.session_date).getTime();
+          return resDate < currentSessionDate && r.test_type_id === s.test_type_id;
+        });
+        
+        console.log('Filtrelenmiş sonuçlar:', filteredResults);
+        
+        prev = filteredResults.reduce((acc: any, cur: any) => {
           const key = `${cur.student_id}:${cur.test_type_id}`
-          if (!acc[key]) acc[key] = cur.value
+          // Her zaman en son tarihli olanı (ilk karşılaşan) tutuyoruz çünkü sıralı geliyor
+          if (!acc[key]) acc[key] = { value: cur.value, date: (cur.session as any)?.session_date }
           return acc
         }, {})
       }
     }
+      console.log('Previous Results:', prev);
+
     return { session: { ...s, group }, students, results, previousResults: prev }
   })
 
@@ -310,51 +323,75 @@ export default function SessionDataPage() {
                 {s.belt && <Badge>{s.belt}</Badge>}
               </div>
               {activeTest && (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {(() => {
-                    const t = activeTest
-                    const key = `${s.id}:${t.id}`
-                    return (
-                      <div key={key} className="space-y-1">
-                        {t.name === BEEP_TEST_NAME ? (
-                          <BeepTestInput
-                            id={key}
-                            student={s}
-                            level={beep[key]?.level ?? ''}
-                            shuttle={beep[key]?.shuttle ?? ''}
-                            previousValue={data.previousResults[key]}
-                            onLevel={(v) => updateBeep(key, { level: v })}
-                            onShuttle={(v) => updateBeep(key, { shuttle: v })}
-                          />
-                        ) : (
-                          <>
-                            <label htmlFor={key} className="text-sm text-gray-600">
-                              {t.name} ({t.unit}) {data.previousResults[key] && <span className="text-xs text-gray-400"> (Önceki: {data.previousResults[key]})</span>}
-                            </label>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Yeni Veri Girişi */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-gray-900">Yeni Veri Girişi</h4>
+                    {(() => {
+                      const t = activeTest
+                      const key = `${s.id}:${t.id}`
+                      return (
+                        <div key={key} className="space-y-3">
+                          {t.name === BEEP_TEST_NAME ? (
+                            <BeepTestInput
+                              id={key}
+                              student={s}
+                              level={beep[key]?.level ?? ''}
+                              shuttle={beep[key]?.shuttle ?? ''}
+                              onLevel={(v) => updateBeep(key, { level: v })}
+                              onShuttle={(v) => updateBeep(key, { shuttle: v })}
+                            />
+                          ) : (
                             <input
                               id={key}
                               inputMode="decimal"
                               type="number"
-                              placeholder={t.unit}
+                              placeholder={`${t.name} (${t.unit})`}
                               value={values[key] ?? ''}
-                              onChange={(e) =>
-                                setValues((v) => ({ ...v, [key]: e.target.value }))
-                              }
+                              onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
                               className="h-[44px] w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-base outline-none focus:border-[var(--color-secondary)] focus:ring-2 focus:ring-[var(--color-secondary)]/30"
                             />
-                          </>
+                          )}
+                          <input
+                            placeholder="Not…"
+                            value={notes[key] ?? ''}
+                            onChange={(e) => setNotes((n) => ({ ...n, [key]: e.target.value }))}
+                            className="h-[44px] w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-base outline-none focus:border-[var(--color-secondary)] focus:ring-2 focus:ring-[var(--color-secondary)]/30"
+                          />
+                        </div>
+                      )
+                    })()}
+                  </div>
+
+                  {/* Son Ölçüm */}
+                  <div className="space-y-3 border-l-0 border-t border-gray-200 pt-6 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+                    <h4 className="text-sm font-bold text-gray-500">
+                      Son Ölçüm {data.previousResults[`${s.id}:${activeTest.id}`] ? `(${new Date(data.previousResults[`${s.id}:${activeTest.id}`].date).toLocaleDateString('tr-TR')})` : ''}
+                    </h4>
+                    {data.previousResults[`${s.id}:${activeTest.id}`] ? (
+                      <div className="space-y-3 opacity-60 pointer-events-none">
+                        {activeTest.name === BEEP_TEST_NAME ? (
+                          <div className="flex gap-2">
+                             <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={data.previousResults[`${s.id}:${activeTest.id}`].value.split('.')[0] || ''} readOnly />
+                             <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={data.previousResults[`${s.id}:${activeTest.id}`].value.split('.')[1] || ''} readOnly />
+                          </div>
+                        ) : (
+                          <input
+                            className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
+                            value={data.previousResults[`${s.id}:${activeTest.id}`].value}
+                            readOnly
+                          />
                         )}
                         <input
-                          placeholder="Not…"
-                          value={notes[key] ?? ''}
-                          onChange={(e) =>
-                            setNotes((n) => ({ ...n, [key]: e.target.value }))
-                          }
-                          className="h-[44px] w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-base outline-none focus:border-[var(--color-secondary)] focus:ring-2 focus:ring-[var(--color-secondary)]/30"
+                          placeholder="Not bulunmuyor"
+                          className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
+                          readOnly
                         />
                       </div>
-                    )
-                  })()}
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">Daha önce veri girilmemiş.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </Card>

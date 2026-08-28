@@ -18,7 +18,7 @@ export function BeepTestInput({
   shuttle: string
   onLevel: (v: string) => void
   onShuttle: (v: string) => void
-  previousValue?: string
+  previousValue?: { value: string; date: string }
 }) {
   const l = Number(level)
   const s = Number(shuttle)
@@ -31,7 +31,11 @@ export function BeepTestInput({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-600">Level / Shuttle</span>
-        {previousValue && <span className="text-xs text-gray-400">Önceki: {previousValue}</span>}
+        {previousValue && (
+          <span className="text-xs text-gray-400">
+            Önceki ({new Date(previousValue.date).toLocaleDateString('tr-TR')}): {previousValue.value}
+          </span>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
