@@ -4,6 +4,7 @@ import { useState } from 'react'
 import useSWR, { mutate } from 'swr'
 import { supabase } from '@/lib/supabase'
 import { Button, Spinner, EmptyState, Card, Dialog, Input, Label } from '@/components/ui'
+import { Pencil, Trash2 } from 'lucide-react'
 
 type TestType = {
   id: string
@@ -69,9 +70,9 @@ export default function TestTypesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Test Tipleri</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Test Tipleri</h1>
         <Button onClick={() => setOpen(true)}>Yeni Test Tipi</Button>
       </div>
 
@@ -80,33 +81,36 @@ export default function TestTypesPage() {
       ) : !data || data.length === 0 ? (
         <EmptyState text="Henüz test tipi yok." />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.map((t) => (
-            <Card key={t.id}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-semibold">{t.name}</p>
-                  <p className="text-sm text-gray-500">{t.unit}</p>
-                </div>
+            <Card key={t.id} className="relative flex flex-col justify-between transition-all hover:shadow-md hover:border-slate-300">
+              <div className="space-y-2">
+                <p className="font-semibold text-slate-900 text-lg">{t.name}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">
-                    {t.higher_is_better ? 'Yüksek iyi' : 'Düşük iyi'}
+                  <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md font-mono">{t.unit}</span>
+                  <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-full ${t.higher_is_better ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                    {t.higher_is_better ? 'Yüksek daha iyi' : 'Düşük daha iyi'}
                   </span>
-                  <button
-                    onClick={() => openEdit(t)}
-                    className="text-sm text-[var(--color-secondary)] hover:underline"
-                    aria-label={`${t.name} düzenle`}
-                  >
-                    Düzenle
-                  </button>
-                  <button
-                    onClick={() => handleDelete(t.id)}
-                    className="text-sm text-red-600 hover:underline"
-                    aria-label={`${t.name} sil`}
-                  >
-                    Sil
-                  </button>
                 </div>
+              </div>
+
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-end gap-1">
+                <button
+                  onClick={() => openEdit(t)}
+                  className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="Düzenle"
+                  aria-label="Düzenle"
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Sil"
+                  aria-label="Sil"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
             </Card>
           ))}
