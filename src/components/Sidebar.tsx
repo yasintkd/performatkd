@@ -17,7 +17,7 @@ const nav = [
 function useNavItems() {
   const pathname = usePathname()
   const router = useRouter()
-  const { role } = useAuth()
+  const { role, user } = useAuth()
 
   const items = role === 'coach' ? nav : nav.filter((n) => n.href !== '/test-types')
   const isActive = (href: string) => pathname.startsWith(href)
@@ -27,7 +27,7 @@ function useNavItems() {
     router.push('/login')
   }
 
-  return { items, isActive, logout }
+  return { items, isActive, logout, user }
 }
 
 export function DesktopSidebar() {
@@ -76,6 +76,37 @@ export function DesktopSidebar() {
   )
 }
 
+export function MobileHeader() {
+  const { user, logout } = useNavItems()
+
+  return (
+    <header
+      className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-white px-3 shadow-md lg:hidden"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        height: 'calc(56px + env(safe-area-inset-top))',
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-primary)] font-black text-white text-xs">
+          TK
+        </div>
+        <span className="font-bold text-[var(--color-dark)]">PerformaTKD</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500">{user?.email}</span>
+        <button
+          onClick={logout}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100"
+          aria-label="Çıkış Yap"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+    </header>
+  )
+}
+
 export function MobileBottomNav() {
   const { items, isActive } = useNavItems()
   const cols = items.length === 4 ? 'grid-cols-4' : 'grid-cols-3'
@@ -109,18 +140,4 @@ export function MobileBottomNav() {
     </nav>
   )
 }
-
-export function MobileLogoutButton() {
-  const { logout } = useNavItems()
-
-  return (
-    <button
-      onClick={logout}
-      className="fixed right-4 z-40 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-600 lg:hidden"
-      style={{ top: 'calc(1rem + env(safe-area-inset-top))' }}
-      aria-label="Çıkış Yap"
-    >
-      <LogOut size={20} />
-    </button>
-  )
-}
+</arg_value></tool_call>
