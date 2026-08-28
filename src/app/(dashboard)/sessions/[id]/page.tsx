@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import { supabase } from '@/lib/supabase'
 import { yc } from '@/lib/yc'
 import { useAuth } from '@/lib/auth'
@@ -158,7 +158,10 @@ export default function SessionDataPage() {
       onConflict: 'session_id, student_id, test_type_id',
     })
     if (error) alert(error.message)
-    else alert('Kaydedildi!')
+    else {
+      alert('Kaydedildi!')
+      mutate(`session-${id}`)
+    }
   }
 
   const report = useMemo(() => {
