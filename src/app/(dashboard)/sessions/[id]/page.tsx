@@ -399,7 +399,7 @@ export default function SessionDataPage() {
                           <>
                             <input
                               className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
-                              value={data.previousResults[`${s.id}:${activeTest.id}`].value}
+                              value={data.previousResults[`${s.id}:${activeTest.id}`].value || ''}
                               readOnly
                             />
                             <input
