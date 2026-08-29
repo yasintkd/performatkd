@@ -60,7 +60,7 @@ export default function SessionDataPage() {
         // Basitleştirilmiş sorgu
         const { data: r2 } = await supabase
           .from('test_results')
-          .select('student_id, test_type_id, value, session:test_sessions(session_date)')
+          .select('student_id, test_type_id, value, notes, session:test_sessions(session_date)')
           .in('student_id', students.map(stItem => stItem.id));
         
         console.log('Tüm test sonuçları (filtresiz):', r2);
