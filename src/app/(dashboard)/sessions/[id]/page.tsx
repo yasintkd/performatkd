@@ -77,7 +77,7 @@ export default function SessionDataPage() {
         prev = filteredResults.reduce((acc: any, cur: any) => {
           const key = `${cur.student_id}:${cur.test_type_id}`
           // Her zaman en son tarihli olanı (ilk karşılaşan) tutuyoruz çünkü sıralı geliyor
-          if (!acc[key]) acc[key] = { value: cur.value, date: (cur.session as any)?.session_date }
+          if (!acc[key]) acc[key] = { value: cur.value, notes: cur.notes, date: (cur.session as any)?.session_date }
           return acc
         }, {})
       }
@@ -128,15 +128,15 @@ export default function SessionDataPage() {
   }, [data?.results])
 
   function updateBeep(key: string, patch: Partial<{ level: string; shuttle: string }>) {
-    setBeep((prev) => {
-      const cur = prev[key] ?? { level: '', shuttle: '' }
-      const next = { ...cur, ...patch }
-      const l = Number(next.level)
-      const s = Number(next.shuttle)
-      const valid = l >= 1 && s >= 0 && s <= 16
-      setValues((vals) => ({ ...vals, [key]: valid ? String(calculateVO2max(l, s)) : '' }))
-      return { ...prev, [key]: next }
-    })
+    const cur = beep[key] ?? { level: '', shuttle: '' }
+    const next = { ...cur, ...patch }
+    const l = Number(next.level)
+    const s = Number(next.shuttle)
+    const valid = l >= 1 && s >= 0 && s <= 16
+    const vo2max = valid ? String(calculateVO2max(l, s)) : ''
+
+    setBeep((prev) => ({ ...prev, [key]: next }))
+    setValues((vals) => ({ ...vals, [key]: vo2max }))
   }
 
   async function handleDelete() {
@@ -346,10 +346,10 @@ export default function SessionDataPage() {
                               id={key}
                               inputMode="decimal"
                               type="number"
-                              placeholder={`${t.name} (${t.unit})`}
+                              placeholder={`${t.name || 'Test Adı'} (${t.unit || 'Birim'})`}
                               value={values[key] ?? ''}
                               onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
-                              className="h-[44px] w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-base outline-none focus:border-[var(--color-secondary)] focus:ring-2 focus:ring-[var(--color-secondary)]/30"
+                              className="h-[44px] w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-base outline-none focus:border-[var(--color-secondary)] focus:ring-2 focus:ring-[var(--color-secondary)]/30 text-base"
                             />
                           )}
                           <input
@@ -370,23 +370,46 @@ export default function SessionDataPage() {
                     </h4>
                     {data.previousResults[`${s.id}:${activeTest.id}`] ? (
                       <div className="space-y-3 opacity-60 pointer-events-none">
-                        {activeTest.name === BEEP_TEST_NAME ? (
-                          <div className="flex gap-2">
-                             <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={data.previousResults[`${s.id}:${activeTest.id}`].value.split('.')[0] || ''} readOnly />
-                             <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={data.previousResults[`${s.id}:${activeTest.id}`].value.split('.')[1] || ''} readOnly />
-                          </div>
-                        ) : (
-                          <input
-                            className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
-                            value={data.previousResults[`${s.id}:${activeTest.id}`].value}
-                            readOnly
-                          />
+                        {activeTest.name === BEEP_TEST_NAME ? (() => {
+                          const prev = data.previousResults[`${s.id}:${activeTest.id}`]
+                          let pBeep = { l: '-', s: '-', n: '' }
+                          try {
+                            const parsed = JSON.parse(prev.notes || '{}')
+                            pBeep.l = parsed.level !== undefined ? String(parsed.level) : '-'
+                            pBeep.s = parsed.shuttle !== undefined ? String(parsed.shuttle) : '-'
+                            pBeep.n = parsed.note || ''
+                          } catch {
+                            pBeep.n = prev.notes || ''
+                          }
+                          return (
+                            <>
+                              <div className="flex gap-2">
+                                <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={pBeep.l} readOnly />
+                                <input className="h-[44px] w-full rounded-lg border bg-gray-100 px-3" value={pBeep.s} readOnly />
+                              </div>
+                              <input
+                                value={pBeep.n}
+                                placeholder="Not bulunmuyor"
+                                className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
+                                readOnly
+                              />
+                            </>
+                          )
+                        })() : (
+                          <>
+                            <input
+                              className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
+                              value={data.previousResults[`${s.id}:${activeTest.id}`].value}
+                              readOnly
+                            />
+                            <input
+                              value={data.previousResults[`${s.id}:${activeTest.id}`].notes || ''}
+                              placeholder="Not bulunmuyor"
+                              className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
+                              readOnly
+                            />
+                          </>
                         )}
-                        <input
-                          placeholder="Not bulunmuyor"
-                          className="h-[44px] w-full appearance-none rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-base"
-                          readOnly
-                        />
                       </div>
                     ) : (
                       <p className="text-sm text-gray-400 italic">Daha önce veri girilmemiş.</p>

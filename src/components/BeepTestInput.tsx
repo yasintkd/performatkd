@@ -33,7 +33,7 @@ export function BeepTestInput({
         <span className="text-sm text-gray-600">Level / Shuttle</span>
         {previousValue && (
           <span className="text-xs text-gray-400">
-            Önceki ({new Date(previousValue.date).toLocaleDateString('tr-TR')}): {previousValue.value}
+            Önceki ({previousValue.date && !isNaN(new Date(previousValue.date).getTime()) ? new Date(previousValue.date).toLocaleDateString('tr-TR') : '-'}): {previousValue.value}
           </span>
         )}
       </div>
